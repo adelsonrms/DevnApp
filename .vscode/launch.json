@@ -1,0 +1,78 @@
+{
+  // Configurações de debug para o backend Express/TypeScript
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "🚀 Debug Server (ts-node)",
+      "type": "node",
+      "request": "launch",
+      "runtimeExecutable": "node",
+      "runtimeArgs": [
+        "--inspect",
+        "-r",
+        "ts-node/register"
+      ],
+      "args": ["${workspaceFolder}/apps/server/src/index.ts"],
+      "cwd": "${workspaceFolder}/apps/server",
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen",
+      "skipFiles": ["<node_internals>/**"],
+      "sourceMaps": true,
+      "env": {
+        "NODE_ENV": "development"
+      },
+      "resolveSourceMapLocations": [
+        "${workspaceFolder}/**",
+        "!**/node_modules/**"
+      ]
+    },
+    {
+      "name": "🔗 Attach to Server (port 9229)",
+      "type": "node",
+      "request": "attach",
+      "port": 9229,
+      "restart": true,
+      "localRoot": "${workspaceFolder}/apps/server",
+      "remoteRoot": "${workspaceFolder}/apps/server",
+      "sourceMaps": true,
+      "skipFiles": ["<node_internals>/**"],
+      "outFiles": ["${workspaceFolder}/apps/server/dist/**/*.js"]
+    },
+    {
+      "name": "📦 Debug Server (compiled)",
+      "type": "node",
+      "request": "launch",
+      "runtimeExecutable": "node",
+      "runtimeArgs": [
+        "--inspect",
+        "--enable-source-maps"
+      ],
+      "program": "${workspaceFolder}/apps/server/dist/index.js",
+      "cwd": "${workspaceFolder}/apps/server",
+      "preLaunchTask": "npm: build",
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen",
+      "sourceMaps": true,
+      "skipFiles": ["<node_internals>/**"],
+      "outFiles": ["${workspaceFolder}/apps/server/dist/**/*.js"],
+      "env": {
+        "NODE_ENV": "development"
+      }
+    },
+    {
+      "name": "🔄 Debug Server (nodemon)",
+      "type": "node",
+      "request": "launch",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev:debug"],
+      "cwd": "${workspaceFolder}/apps/server",
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen",
+      "skipFiles": ["<node_internals>/**"],
+      "sourceMaps": true,
+      "env": {
+        "NODE_ENV": "development"
+      }
+    }
+  ]
+}

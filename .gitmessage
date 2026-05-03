@@ -1,0 +1,38 @@
+# <tipo>(<escopo>): <descrição curta>
+# 
+# <corpo opcional com detalhes>
+# 
+# <rodapé opcional>
+#
+# ==========================================
+# REGRAS DE COMMIT - ContaHub v2
+# ==========================================
+#
+# IMPORTANTE: SEMPRE escrever commits em PORTUGUÊS BR
+# IMPORTANTE: SEMPRE seguir o padrão Conventional Commits
+#
+# Tipos permitidos:
+#   feat: Nova funcionalidade
+#   fix: Correção de bug
+#   docs: Alterações em documentação
+#   style: Formatação, ponto e vírgula faltando, etc (não afeta código)
+#   refactor: Refatoração de código
+#   perf: Melhoria de performance
+#   test: Adicionar ou corrigir testes
+#   chore: Mudanças em build, dependências, configurações
+#   ci: Mudanças em CI/CD
+#   build: Mudanças em sistema de build
+#
+# Exemplos:
+#   feat(consulta): adiciona consulta de situacao cadastral MEI
+#   fix(auth): corrige validacao de certificado digital
+#   refactor(components): padroniza uso de PayloadSelectCard
+#
+# Boas práticas:
+#   - Descrição curta: máximo de 72 caracteres, imperativo, sem ponto final
+#   - Corpo: explicar o "o quê" e "por quê", não o "como"
+#   - Escopo: opcional, mas recomendado (ex: auth, consulta, components)
+#   - Caracteres especiais: usar acentos quando necessário para clareza
+#
+# ==========================================
+

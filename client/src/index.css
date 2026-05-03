@@ -1,0 +1,172 @@
+@import "tailwindcss";
+
+@theme {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-accent: var(--accent);
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+  --color-panel-bg: var(--panel-bg);
+  
+  --font-sans: "Space Mono", monospace;
+  --font-display: "Space Mono", monospace;
+  --font-tech: "Space Mono", monospace;
+}
+
+/* Base Theme Variables (High Contrast Brutalist) */
+:root.light {
+  --background: #f4f4f5;
+  --foreground: #09090b;
+
+  --primary: #10b981; /* Emerald Green */
+  --primary-foreground: #ffffff;
+
+  --secondary: #06b6d4; /* Cyan */
+  --secondary-foreground: #ffffff;
+
+  --accent: #d946ef; /* Fuchsia */
+  --border: #e4e4e7;
+  --border-strong: #a1a1aa;
+  --panel-bg: #ffffff;
+}
+
+:root.dark {
+  --background: #121214; /* Cinza muito escuro */
+  --foreground: #ffffff; /* Sempre branco no dark */
+
+  --primary: #00ff00; /* Neon Green */
+  --primary-foreground: #000000;
+
+  --secondary: #00ffff; /* Neon Cyan */
+  --secondary-foreground: #000000;
+
+  --accent: #ff00ff; /* Neon Magenta */
+  --border: #27272a;
+  --border-strong: #71717a; /* Cinza mais claro para maior visibilidade */
+  --panel-bg: #18181b;
+}
+
+@layer base {
+  * {
+    @apply border-border rounded-none;
+  }
+  
+  body {
+    @apply font-sans antialiased bg-background text-foreground overflow-x-hidden selection:bg-primary selection:text-black transition-colors duration-200;
+    min-height: 100vh;
+  }
+}
+
+@layer components {
+  .border-layout-v {
+    @apply border-r-2 border-border-strong shadow-[inset_-1px_0px_0px_rgba(255,255,255,0.1),1px_0px_2px_rgba(0,0,0,0.5)];
+  }
+  
+  .border-layout-h {
+    @apply border-b-2 border-border-strong shadow-[inset_0px_-1px_0px_rgba(255,255,255,0.1),0px_1px_2px_rgba(0,0,0,0.5)];
+  }
+
+  .border-layout-t {
+    @apply border-t-2 border-border-strong shadow-[inset_0px_1px_0px_rgba(255,255,255,0.1),0px_-1px_2px_rgba(0,0,0,0.5)];
+  }
+
+  .border-layout-l {
+    @apply border-l-2 border-border-strong shadow-[inset_1px_0px_0px_rgba(255,255,255,0.1),-1px_0px_2px_rgba(0,0,0,0.5)];
+  }
+
+  .panel-container {
+    @apply border-2 border-border-strong bg-panel-bg shadow-[2px_2px_4px_rgba(0,0,0,0.4),-1px_-1px_0px_rgba(255,255,255,0.05)];
+  }
+
+  /* Segmented Layout Borders - High Relief */
+  .panel-segment {
+    @apply bg-panel-bg;
+  }
+
+  /* Tech Frame with Beveled/Chisel Corners (Triangle style) */
+  .tech-frame {
+    position: relative;
+    @apply border-2 border-border-strong bg-panel-bg;
+    clip-path: polygon(
+      20px 0%, calc(100% - 20px) 0%, 100% 20px, 
+      100% calc(100% - 20px), calc(100% - 20px) 100%, 
+      20px 100%, 0% calc(100% - 20px), 0% 20px
+    );
+  }
+
+  .tech-frame::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    @apply border-2 border-border-strong;
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  /* Decorative Triangle Corners for the Frame */
+  .tech-corner-decor {
+    position: relative;
+    @apply bg-panel-bg;
+    border: 2px solid var(--border-strong);
+    background: 
+      linear-gradient(135deg, var(--border-strong) 15px, transparent 16px) top left,
+      linear-gradient(225deg, var(--border-strong) 15px, transparent 16px) top right,
+      linear-gradient(45deg, var(--border-strong) 15px, transparent 16px) bottom left,
+      linear-gradient(315deg, var(--border-strong) 15px, transparent 16px) bottom right;
+    background-size: 40px 40px;
+    background-repeat: no-repeat;
+  }
+}
+
+/* Premium Utilities */
+@utility glass {
+  @apply bg-white/[0.03] backdrop-blur-xl border border-white/10;
+}
+
+@utility glass-hover {
+  @apply hover:bg-white/[0.06] hover:border-white/20 transition-all duration-300;
+}
+
+@utility scrollbar-hide {
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+  &::-webkit-scrollbar {
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
+  }
+}
+
+@utility text-glow-cyan {
+  text-shadow: 0 0 15px rgba(6, 182, 212, 0.5);
+}
+
+@utility text-glow-purple {
+  text-shadow: 0 0 15px rgba(139, 92, 246, 0.5);
+}
+
+@utility neon-border {
+  box-shadow: 0 0 20px rgba(139, 92, 246, 0.15);
+}
+
+@utility tech-grid {
+  background-image: radial-gradient(circle, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-background;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-white/10 rounded-full hover:bg-secondary/50 transition-colors;
+}

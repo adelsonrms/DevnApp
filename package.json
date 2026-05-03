@@ -1,0 +1,28 @@
+{
+  "name": "@devnfw/app-template",
+  "version": "1.0.0",
+  "private": true,
+  "description": "DevnFW Application Template - Base for new apps",
+  "workspaces": [
+    "client",
+    "server",
+    "shared"
+  ],
+  "scripts": {
+    "dev": "node dev.cjs",
+    "build": "npm run build -w shared && npm run build -w server && npm run build -w client",
+    "start": "npm run start -w server",
+    "clean": "node -e \"[ 'client/dist', 'server/dist', 'shared/dist' ].forEach(p => fs.rmSync(p, { recursive: true, force: true }))\"",
+    "kill": "powershell -ExecutionPolicy Bypass -File ./kill.ps1"
+  },
+  "keywords": [
+    "devnfw",
+    "template",
+    "monorepo"
+  ],
+  "author": "DevnFW Team",
+  "license": "MIT",
+  "devDependencies": {
+    "concurrently": "^9.2.1"
+  }
+}
