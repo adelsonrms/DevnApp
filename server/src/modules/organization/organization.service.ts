@@ -1,6 +1,6 @@
 import { RepositoryFactory } from '../../database/repository.factory';
 import { IRepository } from '../../database/repository.interface';
-import { Organization, User } from '@devnfw/shared';
+import { Organization, User } from '../../../../shared/src/index';
 import { userService } from '../user/user.service';
 
 export class OrganizationService {

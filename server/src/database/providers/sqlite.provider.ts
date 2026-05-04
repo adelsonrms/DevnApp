@@ -1,7 +1,7 @@
 import Database from 'better-sqlite3';
 import path from 'path';
 import { IRepository } from '../repository.interface';
-import { User } from '@devnfw/shared';
+import { User } from '../../../../shared/src/index';
 
 interface PasswordResetToken {
   id: string;

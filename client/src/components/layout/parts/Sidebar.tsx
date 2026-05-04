@@ -26,21 +26,21 @@ const Sidebar: React.FC = () => {
           )}
         </div>
         <div className="min-w-0">
-          <p className="text-[10px] font-black text-foreground uppercase truncate">{user?.name}</p>
-          <p className="text-[8px] font-bold text-primary uppercase tracking-tighter">ONLINE_NODE</p>
+          <p className="text-[10px] font-black text-foreground truncate">{user?.name}</p>
+          <p className="text-[8px] font-bold text-primary tracking-tighter">ONLINE_NODE</p>
         </div>
       </div>
 
       {/* 2. Menu */}
-      <nav className="flex-1 p-2 space-y-1 scrollbar-hide">
-        <p className="text-[8px] font-black text-foreground/30 uppercase tracking-[0.2em] px-2 mb-2">SYSTEM_NAVIGATION</p>
+      <nav className="flex-1 p-2 space-y-1 overflow-y-auto scrollbar-hide">
+        <p className="text-[8px] font-black text-foreground/30 tracking-[0.2em] px-2 mb-2">SYSTEM_NAVIGATION</p>
         {navItems.map((item) => {
           const isActive = location.pathname === item.path;
           return (
             <Link
               key={item.path}
               to={item.path}
-              className={`flex items-center gap-3 px-3 py-2.5 transition-all duration-200 group no-underline border ${
+              className={`flex items-center gap-3 px-3 py-2.5 transition-all duration-200 group no-underline border cursor-pointer ${
                 isActive 
                   ? 'bg-primary text-black border-black shadow-[2px_2px_0_0_rgba(0,0,0,1)]' 
                   : 'text-foreground/70 hover:text-foreground hover:bg-white/5 border-transparent'
@@ -49,20 +49,20 @@ const Sidebar: React.FC = () => {
               <span className="shrink-0">
                 {item.icon}
               </span>
-              <span className="text-[10px] font-black uppercase tracking-wider">{item.label}</span>
+              <span className="text-[10px] font-black tracking-wider">{item.label}</span>
             </Link>
           );
         })}
       </nav>
 
-      {/* 3. Footer / Logout */}
-      <div className="p-2 border-t border-border-strong/20">
+      {/* 3. Footer / Logout - Fixo no rodapé */}
+      <div className="p-2 border-t border-border-strong/20 mt-auto bg-panel-bg">
         <button
           onClick={logout}
-          className="w-full flex items-center gap-3 px-3 py-2.5 text-foreground/50 hover:text-destructive hover:bg-destructive/5 transition-all duration-200 group border"
+          className="w-full flex items-center gap-3 px-3 py-2.5 text-foreground/50 hover:text-destructive hover:bg-destructive/5 transition-all duration-200 group border cursor-pointer"
         >
           <LogOut size={18} />
-          <span className="text-[10px] font-black uppercase tracking-widest">TERMINATE_SESSION</span>
+          <span className="text-[10px] font-black tracking-widest">TERMINATE_SESSION</span>
         </button>
       </div>
     </div>

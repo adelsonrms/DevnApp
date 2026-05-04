@@ -20,7 +20,7 @@ const LandingPage: React.FC = () => {
       <header id="landing-header" className="flex-none z-50 border-b border-border-strong bg-panel-bg h-14 flex items-center justify-between">
         <NavbarBrand />
         <div className="flex items-center gap-6 px-6">
-          <Link to="/login" className="text-[10px] font-black text-foreground/40 hover:text-primary uppercase tracking-[0.2em] transition-colors">
+          <Link to="/login" className="text-[10px] font-black text-foreground/100 hover:text-primary uppercase tracking-[0.2em] transition-colors">
             AUTHENTICATE_SESSION
           </Link>
           <Link to="/dashboard" className="px-4 py-1.5 bg-primary text-black text-[10px] font-black uppercase tracking-widest border border-black hover:brightness-110 transition-all">
@@ -103,7 +103,7 @@ const LandingPage: React.FC = () => {
                       {feature.icon}
                     </div>
                     <h3 className="text-xl font-black mb-4 text-white uppercase tracking-tighter">{feature.title}</h3>
-                    <p className="text-[10px] font-bold text-foreground/40 leading-relaxed uppercase tracking-widest">
+                    <p className="text-[10px] font-bold text-foreground/100 leading-relaxed uppercase tracking-widest">
                       {feature.desc}
                     </p>
                     <div className="absolute bottom-0 left-0 h-1 w-0 bg-primary group-hover:w-full transition-all duration-500" />

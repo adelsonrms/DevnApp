@@ -1,7 +1,7 @@
 import bcrypt from 'bcrypt';
 import jwt, { SignOptions } from 'jsonwebtoken';
 import { RepositoryFactory } from '../../database/repository.factory';
-import { User, ApiResponse } from '@devnfw/shared';
+import { User, ApiResponse } from '../../../../shared/src/index';
 
 interface CreateUserData {
   email: string;

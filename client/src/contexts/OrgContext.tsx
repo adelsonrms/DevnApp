@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import { Organization } from '@devnfw/shared';
 import api from '../services/api';
 import { useAuth } from './AuthContext';
+import { SessionManager } from '../services/sessionManager';
 
 interface OrgContextType {
     currentOrg: Organization | null;
@@ -55,27 +56,44 @@ export function OrgProvider({ children }: { children: React.ReactNode }) {
 
     const loadOrganizations = async () => {
         setLoading(true);
-        
-        // DEMONSTRATION MODE: Injecting mock organizations bypassing backend
-        setOrganizations(MOCK_ORGS);
-        
-        const savedOrgId = localStorage.getItem('devnapp:org_id');
-        const lastOrg = MOCK_ORGS.find(o => o.id === savedOrgId);
-        
-        if (lastOrg) {
+        try {
+            // Tentar carregar da API via serviço centralizado
+            const response = await api.get('/organizations');
+            if (response.success && response.data) {
+                setOrganizations(response.data);
+                
+                const savedOrgId = SessionManager.getOrgId();
+                const current = response.data.find((o: Organization) => o.id === savedOrgId) || response.data[0];
+                
+                if (current) {
+                    setCurrentOrg(current);
+                    SessionManager.setOrgId(current.id);
+                }
+            } else {
+                // Fallback para mock se falhar ou estiver em dev
+                setOrganizations(MOCK_ORGS);
+                const savedOrgId = SessionManager.getOrgId();
+                const lastOrg = MOCK_ORGS.find(o => o.id === savedOrgId) || MOCK_ORGS[0];
+                setCurrentOrg(lastOrg);
+                if (lastOrg) SessionManager.setOrgId(lastOrg.id);
+            }
+        } catch (err) {
+            console.error('Erro ao carregar organizações:', err);
+            setOrganizations(MOCK_ORGS);
+            const savedOrgId = SessionManager.getOrgId();
+            const lastOrg = MOCK_ORGS.find(o => o.id === savedOrgId) || MOCK_ORGS[0];
             setCurrentOrg(lastOrg);
-        } else {
-            setCurrentOrg(MOCK_ORGS[0]);
+            if (lastOrg) SessionManager.setOrgId(lastOrg.id);
+        } finally {
+            setLoading(false);
         }
-        
-        setLoading(false);
     };
 
     const setOrganization = (id: string) => {
         const org = organizations.find(o => o.id === id);
         if (org) {
             setCurrentOrg(org);
-            localStorage.setItem('devnapp:org_id', id);
+            SessionManager.setOrgId(id);
         }
     };
 

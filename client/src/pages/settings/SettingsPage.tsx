@@ -13,7 +13,7 @@ const SettingsPage: React.FC = () => {
       <header className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-border-strong pb-6">
         <div className="space-y-1">
           <h2 className="text-3xl font-black tracking-tighter text-foreground uppercase">SYSTEM_<span className="text-primary">SETTINGS</span></h2>
-          <p className="text-[10px] font-black tracking-widest uppercase text-foreground/40">
+          <p className="text-[10px] font-black tracking-widest uppercase text-foreground/100">
             UI_CUSTOMIZATION &middot; THEME_ORCHESTRATOR
           </p>
         </div>
@@ -72,7 +72,7 @@ const SettingsPage: React.FC = () => {
                 { label: 'BORDER_STRUCT', key: 'borderStrong' },
               ].map((item) => (
                 <div key={item.key} className="space-y-2">
-                  <label className="text-[9px] font-black text-foreground/40 uppercase tracking-widest block">
+                  <label className="text-[9px] font-black text-foreground/100 uppercase tracking-widest block">
                     {item.label}
                   </label>
                   <div className="flex gap-2">

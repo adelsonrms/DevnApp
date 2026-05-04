@@ -1,6 +1,7 @@
 import { RepositoryFactory } from '../../database/repository.factory';
-import { User } from '@devnfw/shared';
+import { User } from '../../../../shared/src/index';
 import bcrypt from 'bcrypt';
+import crypto from 'crypto';
 
 interface PasswordChangeData {
   currentPassword: string;
@@ -22,12 +23,14 @@ export class UserService {
   }
 
   async create(data: any): Promise<User> {
+    if (!data.organization_id) {
+      throw new Error('organization_id é obrigatório');
+    }
     return this.repository.create(data);
   }
 
   async findByEmail(email: string): Promise<User | null> {
-    const users = await this.repository.findMany({ email });
-    return users.length > 0 ? users[0] : null;
+    return this.repository.findByEmail(email);
   }
 
   async findById(id: string): Promise<User | null> {
@@ -39,6 +42,9 @@ export class UserService {
   }
 
   async update(id: string, data: any): Promise<User> {
+    if (data.organization_id === null || data.organization_id === '') {
+      delete data.organization_id;
+    }
     return this.repository.update(id, data);
   }
 
@@ -52,11 +58,12 @@ export class UserService {
       return { success: false, error: 'Usuário não encontrado' };
     }
 
-    if (!(user as any).password) {
+    const userWithPassword = user as any;
+    if (!userWithPassword.password) {
       return { success: false, error: 'Usuário não possui senha configurada' };
     }
 
-    const isMatch = await bcrypt.compare(data.currentPassword, (user as any).password);
+    const isMatch = await bcrypt.compare(data.currentPassword, userWithPassword.password);
     if (!isMatch) {
       return { success: false, error: 'Senha atual incorreta' };
     }
@@ -73,7 +80,7 @@ export class UserService {
       return { success: false, error: 'Se existir um usuário com este email, um link de recuperação foi enviado' };
     }
 
-    const resetToken = require('crypto').randomBytes(32).toString('hex');
+    const resetToken = crypto.randomBytes(32).toString('hex');
     await this.passwordRepository.createPasswordResetToken(user.id, resetToken, 60);
 
     return { success: true, token: resetToken };

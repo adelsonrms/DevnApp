@@ -139,7 +139,7 @@ const DashboardPage: React.FC = () => {
                     </div>
                     <p className="text-[9px] font-black text-foreground uppercase tracking-widest">CORE_MODULE &middot; {i * 12}M_AGO</p>
                   </div>
-                  <ArrowRight size={14} className="text-foreground/40 group-hover:text-secondary transition-all" />
+                  <ArrowRight size={14} className="text-foreground/100 group-hover:text-secondary transition-all" />
                 </div>
               ))}
             </div>
