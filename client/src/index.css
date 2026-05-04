@@ -12,9 +12,9 @@
   --color-border-strong: var(--border-strong);
   --color-panel-bg: var(--panel-bg);
   
-  --font-sans: "Space Mono", monospace;
-  --font-display: "Space Mono", monospace;
-  --font-tech: "Space Mono", monospace;
+  --font-sans: 'Outfit', sans-serif;
+  --font-serif: Georgia, serif;
+  --font-mono: 'JetBrains Mono', monospace;
 }
 
 /* Base Theme Variables (High Contrast Brutalist) */

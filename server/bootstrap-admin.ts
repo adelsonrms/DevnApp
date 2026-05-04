@@ -19,7 +19,7 @@ async function bootstrap() {
 
     // 1. Criar Organização Root
     console.log('📦 Verificando Organização Root...');
-    const existingOrgs = await orgRepository.findMany({ slug: 'root' });
+    const existingOrgs = await orgRepository.findMany({ filters: { slug: 'root' } });
     let rootOrgId = '';
 
     if (existingOrgs.length === 0) {
@@ -42,7 +42,7 @@ async function bootstrap() {
     const adminPassword = process.env.INITIAL_ADMIN_PASSWORD || 'admin123';
     
     console.log(`👤 Verificando Usuário Admin (${adminEmail})...`);
-    const existingUsers = await userRepository.findMany({ email: adminEmail });
+    const existingUsers = await userRepository.findMany({ filters: { email: adminEmail } });
     const hashedPassword = await bcrypt.hash(adminPassword, 10);
 
     if (existingUsers.length === 0) {
