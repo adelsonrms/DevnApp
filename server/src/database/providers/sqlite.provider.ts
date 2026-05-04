@@ -1,15 +1,6 @@
 import Database from 'better-sqlite3';
 import path from 'path';
-import { IRepository } from '../repository.interface';
-import { User } from '@devnfw/shared';
-
-interface PasswordResetToken {
-  id: string;
-  user_id: string;
-  token: string;
-  expires_at: string;
-  created_at: string;
-}
+import { IRepository, FindManyOptions } from '../repository.interface';
 
 export class SqliteProvider<T> implements IRepository<T> {
   private static db: Database.Database | null = null;
@@ -116,7 +107,7 @@ export class SqliteProvider<T> implements IRepository<T> {
     }
   }
 
-  private getDb(): Database.Database {
+  protected getDb(): Database.Database {
     if (!SqliteProvider.db) {
       throw new Error('Database not initialized');
     }
@@ -193,10 +184,12 @@ export class SqliteProvider<T> implements IRepository<T> {
     return record ? (this.cleanRecord(record) as T) : null;
   }
 
-  async findMany(filters?: Record<string, any>): Promise<T[]> {
+  async findMany(options?: FindManyOptions): Promise<T[]> {
     const db = this.getDb();
     let sql = `SELECT * FROM ${this.tableName}`;
     const values: any[] = [];
+
+    const { filters, limit, offset, orderBy, order } = options || {};
 
     if (filters && Object.keys(filters).length > 0) {
       const conditions = Object.keys(filters).map(key => {
@@ -204,6 +197,20 @@ export class SqliteProvider<T> implements IRepository<T> {
         return `${key} = ?`;
       });
       sql += ` WHERE ${conditions.join(' AND ')}`;
+    }
+
+    if (orderBy) {
+      sql += ` ORDER BY ${orderBy} ${order || 'ASC'}`;
+    }
+
+    if (limit !== undefined) {
+      sql += ` LIMIT ?`;
+      values.push(limit);
+
+      if (offset !== undefined) {
+        sql += ` OFFSET ?`;
+        values.push(offset);
+      }
     }
 
     const records = db.prepare(sql).all(...values) as Record<string, any>[];
@@ -225,51 +232,6 @@ export class SqliteProvider<T> implements IRepository<T> {
 
     const result = db.prepare(sql).get(...values) as { count: number };
     return result.count;
-  }
-
-  async findByEmail(email: string): Promise<User | null> {
-    const db = this.getDb();
-    const sql = `SELECT * FROM ${this.tableName} WHERE email = ?`;
-    const record = db.prepare(sql).get(email) as Record<string, any> | undefined;
-    return record ? (record as User) : null;
-  }
-
-  async createPasswordResetToken(userId: string, token: string, expiresInMinutes: number = 60): Promise<PasswordResetToken> {
-    const db = this.getDb();
-    const id = Math.random().toString(36).substring(7) + Date.now().toString(36);
-    const expiresAt = new Date(Date.now() + expiresInMinutes * 60 * 1000).toISOString();
-
-    db.prepare('DELETE FROM password_reset_tokens WHERE user_id = ?').run(userId);
-
-    const sql = `INSERT INTO password_reset_tokens (id, user_id, token, expires_at, created_at) VALUES (?, ?, ?, ?, ?)`;
-    db.prepare(sql).run(id, userId, token, expiresAt, new Date().toISOString());
-
-    return {
-      id,
-      user_id: userId,
-      token,
-      expires_at: expiresAt,
-      created_at: new Date().toISOString()
-    };
-  }
-
-  async findPasswordResetToken(token: string): Promise<PasswordResetToken | null> {
-    const db = this.getDb();
-    const sql = `SELECT * FROM password_reset_tokens WHERE token = ? AND expires_at > datetime('now')`;
-    const record = db.prepare(sql).get(token) as PasswordResetToken | undefined;
-    return record || null;
-  }
-
-  async deletePasswordResetToken(token: string): Promise<boolean> {
-    const db = this.getDb();
-    const result = db.prepare('DELETE FROM password_reset_tokens WHERE token = ?').run(token);
-    return result.changes > 0;
-  }
-
-  async deletePasswordResetTokensByUserId(userId: string): Promise<boolean> {
-    const db = this.getDb();
-    const result = db.prepare('DELETE FROM password_reset_tokens WHERE user_id = ?').run(userId);
-    return result.changes > 0;
   }
 
   private cleanRecord(record: Record<string, any>): Record<string, any> {

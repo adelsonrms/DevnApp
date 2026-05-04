@@ -28,7 +28,7 @@ const Navbar: React.FC = () => {
           />
         </div>
       </NavbarContent>
-      <NavbarActions />
+      <NavbarActions  />
     </div>
   );
 };

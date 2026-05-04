@@ -1,3 +1,6 @@
+// Função para iniciar um serviço
+// Utiliza o módulo 'child_process' para executar o comando de desenvolvimento do serviço
+
 const { spawn } = require('child_process');
 const http = require('http');
 const path = require('path');
@@ -31,7 +34,28 @@ const services = [
 ];
 
 const processes = [];
+const readyServices = new Set();
 const reset = '\x1b[0m';
+
+// Termos para filtrar nos logs (pode ser expandido via ENV LOG_FILTER_SKIP)
+const defaultFilters = [
+  'DEP0190', 
+  'DeprecationWarning',
+  'watching for file changes',
+  'starting compilation',
+  'found 0 errors'
+];
+
+const customFilters = process.env.LOG_FILTER_SKIP ? process.env.LOG_FILTER_SKIP.split(',') : [];
+const allFilters = [...defaultFilters, ...customFilters].map(f => f.toLowerCase().trim());
+
+/**
+ * Verifica se uma linha de log deve ser ignorada
+ */
+function shouldFilterLine(line) {
+  const lowerLine = line.toLowerCase();
+  return allFilters.some(filter => lowerLine.includes(filter));
+}
 
 // Função para fazer requisição HTTP
 function makeRequest(url) {
@@ -62,95 +86,120 @@ function makeRequest(url) {
   });
 }
 
-// Função para testar health de um serviço
-async function testHealth(service, silent = false) {
-  try {
-    const response = await makeRequest(service.healthUrl);
-    if (response.status === 200) {
-      if (!silent) {
-        console.log(`${service.color}✅ ${service.name}: OK${reset}`);
-        if (response.data && typeof response.data === 'object') {
-          console.log(`   Status: ${response.data.status || 'unknown'}`);
-        }
-      }
-      return true;
-    } else {
-      console.log(`${service.color}❌ ${service.name}: HTTP ${response.status}${reset}`);
-      return false;
-    }
-  } catch (error) {
-    console.log(`${service.color}❌ ${service.name}: -> Aguardando inicialização...`);
-    return false;
-  }
-}
+// Função para testar health de um serviço (Integrada no waitForServices para evitar repetição de logs)
+// Removida a função testHealth antiga para centralizar a lógica e evitar logs duplicados
 
 // Função para iniciar um serviço
 function startService(service) {
-  console.log(`${service.color}🚀 Iniciando ${service.name}...${reset}`);
-  
-  const childProcess = spawn(service.command, service.args, {
+  const processo = spawn(service.command, service.args, {
     cwd: service.cwd,
     stdio: 'pipe',
-    shell: true,
+    shell: true, // Reativado para compatibilidade total com comandos npm no Windows
     env: {
       ...process.env,
+      NODE_NO_WARNINGS: '1', // Tenta suprimir avisos de depreciação nos processos filhos
       ...(service.env || {})
     }
   });
+
+  processo.on('error', (err) => {
+    console.error(`${service.color}[${service.name} SPAWN ERROR]${reset} Não foi possível iniciar o serviço:`, err.message);
+  });
   
-  childProcess.stdout.on('data', (data) => {
+  //Eventos que são emitidos pelo processo
+  //Quando o processo for iniciado, ele emitirá o evento 'data' com a saída do processo
+  
+  // stdout : Saída padrão do processo. "data" é um Buffer que contém a saída do processo
+  processo.stdout.on('data', (data) => {
     const lines = data.toString().split('\n').filter(line => line.trim());
     lines.forEach(line => {
-      console.log(`${service.color}[${service.name}]${reset} ${line}`);
+      if (shouldFilterLine(line)) return;
+
+      if (line.toLowerCase().includes('error') || line.toLowerCase().includes('fail')) {
+        console.log(`${service.color}[${service.name}]${reset} ${line}`);
+      }
     });
   });
   
-  childProcess.stderr.on('data', (data) => {
+  // stderr : Saída de erro do processo. "data" é um Buffer que contém a saída de erro do processo
+  processo.stderr.on('data', (data) => {
     const lines = data.toString().split('\n').filter(line => line.trim());
     lines.forEach(line => {
+      if (shouldFilterLine(line)) return;
       console.log(`${service.color}[${service.name} ERROR]${reset} ${line}`);
     });
   });
   
-  childProcess.on('close', (code) => {
-    console.log(`${service.color}[${service.name}] Processo finalizado com código ${code}${reset}`);
+  // close : O processo foi fechado. "code" é o código de saída do processo
+  // Se for diferente de 0, significa que houve um erro
+  processo.on('close', (code) => {
+    if (code !== 0 && code !== null) {
+      console.log(`${service.color}[${service.name}] Finalizado com código ${code}${reset}`);
+    }
   });
   
-  processes.push({ service, process: childProcess });
-  return childProcess;
+  processes.push({ service, process: processo });
+  return processo;
 }
 
 // Função para aguardar que os serviços estejam prontos
 async function waitForServices() {
-  console.log('\n⏳ Aguardando serviços ficarem prontos...');
-  
-  const maxAttempts = 10;
-  const delay = 2000;
+  const maxAttempts = 20;
+  const delay = 1500;
+  let backendData = null;
   
   for (let attempt = 1; attempt <= maxAttempts; attempt++) {
-    const results = [];
+    const pending = [];
     for (const service of services) {
-      const isHealthy = await testHealth(service, false);
-      results.push({ service: service.name, healthy: isHealthy });
+      if (readyServices.has(service.name)) continue;
+
+      // Se o serviço não tem URL de health, consideramos OK se o processo iniciou
+      if (!service.healthUrl) {
+        console.log(`${service.color}✅ ${service.name}: Pronto${reset}`);
+        readyServices.add(service.name);
+        continue;
+      }
+
+      try {
+        const response = await makeRequest(service.healthUrl);
+        if (response.status === 200) {
+          console.log(`${service.color}✅ ${service.name}: Pronto${reset}`);
+          readyServices.add(service.name);
+          if (service.name === 'Backend') {
+            backendData = response.data;
+          }
+          continue;
+        }
+        pending.push(service.name);
+      } catch (error) {
+        pending.push(service.name);
+      }
     }
     
-    const allHealthy = results.every(r => r.healthy);
-    
-    if (allHealthy) {
-      console.log('\n🎉 Todos os serviços estão funcionando!');
+    if (pending.length === 0) {
+      console.log(`\n${reset}🎉 Todos os serviços estão online!${reset}`);
       console.log('\n📋 Resumo dos serviços:');
       services.forEach(service => {
-        console.log(`   • ${service.name}: ${service.healthUrl}`);
+        const urlInfo = service.healthUrl ? ` -> ${service.healthUrl}` : ' (Compilação)';
+        console.log(`   • ${service.color}${service.name}${reset}${urlInfo}`);
       });
+
+      if (backendData) {
+        console.log(`\n📂 Banco de Dados: ${backendData.provider || 'postgres'}`);
+        console.log(`✨ Versão: ${backendData.version || '1.0.0'}`);
+      }
       return true;
     }
 
-    if (attempt < maxAttempts) {
-      await new Promise(resolve => setTimeout(resolve, delay));
+    if (attempt % 3 === 0) {
+      console.log(`⏳ Aguardando: ${pending.join(', ')}...`);
     }
+
+    await new Promise(resolve => setTimeout(resolve, delay));
   }
   
-  console.log('\n❌ Nem todos os serviços estão respondendo após todas as tentativas.');
+  const finalPending = services.filter(s => !readyServices.has(s.name)).map(s => s.name);
+  console.log(`\n❌ Timeout: ${finalPending.join(', ')} não responderam.`);
   return false;
 }
 

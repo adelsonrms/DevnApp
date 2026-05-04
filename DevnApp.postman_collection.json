@@ -1,0 +1,632 @@
+{
+	"info": {
+		"_postman_id": "a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c5d",
+		"name": "DevnApp API",
+		"description": "Coleção de APIs para o sistema DevnApp. Inclui autenticação, gerenciamento de usuários e organizações.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "System",
+			"item": [
+				{
+					"name": "Health Check",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/health",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"health"
+							]
+						},
+						"description": "Verifica se a API está online e retorna informações do sistema."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Auth",
+			"item": [
+				{
+					"name": "Register",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"admin@devn.com\",\n    \"password\": \"admin123\",\n    \"name\": \"Administrator\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/register",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"auth",
+								"register"
+							]
+						},
+						"description": "Registra um novo usuário no sistema."
+					},
+					"response": []
+				},
+				{
+					"name": "Login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();",
+									"if (jsonData.success && jsonData.token) {",
+									"    pm.collectionVariables.set(\"token\", jsonData.token);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"admin@devn.com\",\n    \"password\": \"admin123\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/login",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"auth",
+								"login"
+							]
+						},
+						"description": "Autentica um usuário e retorna um token JWT. O token é salvo automaticamente na variável de coleção `token`."
+					},
+					"response": []
+				},
+				{
+					"name": "Me",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/auth/me",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"auth",
+								"me"
+							]
+						},
+						"description": "Retorna os dados do usuário autenticado."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Organizations",
+			"item": [
+				{
+					"name": "List Organizations",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/organizations?page=1&limit=10&orderBy=name&order=ASC",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"organizations"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "limit",
+									"value": "10"
+								},
+								{
+									"key": "orderBy",
+									"value": "name"
+								},
+								{
+									"key": "order",
+									"value": "ASC"
+								}
+							]
+						},
+						"description": "Lista todas as organizações com suporte a paginação e ordenação."
+					},
+					"response": []
+				},
+				{
+					"name": "Create Organization",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();",
+									"if (jsonData.success && jsonData.data.id) {",
+									"    pm.collectionVariables.set(\"org_id\", jsonData.data.id);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Devn Corp\",\n    \"slug\": \"devn-corp\",\n    \"description\": \"Organização de desenvolvimento\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/organizations",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"organizations"
+							]
+						},
+						"description": "Cria uma nova organização. O ID gerado é salvo na variável `org_id`."
+					},
+					"response": []
+				},
+				{
+					"name": "Get Organization by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/organizations/{{org_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"organizations",
+								"{{org_id}}"
+							]
+						},
+						"description": "Retorna os detalhes de uma organização específica."
+					},
+					"response": []
+				},
+				{
+					"name": "Update Organization",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Devn Corp Updated\",\n    \"description\": \"Descrição atualizada\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/organizations/{{org_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"organizations",
+								"{{org_id}}"
+							]
+						},
+						"description": "Atualiza os dados de uma organização."
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Organization",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/organizations/{{org_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"organizations",
+								"{{org_id}}"
+							]
+						},
+						"description": "Remove uma organização do sistema."
+					},
+					"response": []
+				},
+				{
+					"name": "List Members",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/organizations/{{org_id}}/members",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"organizations",
+								"{{org_id}}",
+								"members"
+							]
+						},
+						"description": "Lista os membros de uma organização."
+					},
+					"response": []
+				},
+				{
+					"name": "Add Member",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"user@example.com\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/organizations/{{org_id}}/members",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"organizations",
+								"{{org_id}}",
+								"members"
+							]
+						},
+						"description": "Adiciona um usuário como membro de uma organização através do email."
+					},
+					"response": []
+				},
+				{
+					"name": "Remove Member",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/organizations/{{org_id}}/members/{{user_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"organizations",
+								"{{org_id}}",
+								"members",
+								"{{user_id}}"
+							]
+						},
+						"description": "Remove um membro de uma organização."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Users",
+			"item": [
+				{
+					"name": "List Users",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/users?orgId={{org_id}}&page=1&limit=10",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"users"
+							],
+							"query": [
+								{
+									"key": "orgId",
+									"value": "{{org_id}}"
+								},
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "limit",
+									"value": "10"
+								}
+							]
+						},
+						"description": "Lista usuários, opcionalmente filtrando por organização."
+					},
+					"response": []
+				},
+				{
+					"name": "Create User",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();",
+									"if (jsonData.success && jsonData.data.id) {",
+									"    pm.collectionVariables.set(\"user_id\", jsonData.data.id);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"newuser@devn.com\",\n    \"password\": \"user123\",\n    \"name\": \"New User\",\n    \"role\": \"user\",\n    \"organization_id\": \"{{org_id}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/users",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"users"
+							]
+						},
+						"description": "Cria um novo usuário. O ID gerado é salvo na variável `user_id`."
+					},
+					"response": []
+				},
+				{
+					"name": "Get User by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/users/{{user_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"users",
+								"{{user_id}}"
+							]
+						},
+						"description": "Retorna os detalhes de um usuário específico."
+					},
+					"response": []
+				},
+				{
+					"name": "Update User",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Updated Name\",\n    \"role\": \"admin\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/users/{{user_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"users",
+								"{{user_id}}"
+							]
+						},
+						"description": "Atualiza os dados de um usuário."
+					},
+					"response": []
+				},
+				{
+					"name": "Change Password",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"currentPassword\": \"user123\",\n    \"newPassword\": \"newpassword123\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/users/{{user_id}}/change-password",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"users",
+								"{{user_id}}",
+								"change-password"
+							]
+						},
+						"description": "Altera a senha do usuário."
+					},
+					"response": []
+				},
+				{
+					"name": "Forgot Password",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"newuser@devn.com\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/users/forgot-password",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"users",
+								"forgot-password"
+							]
+						},
+						"description": "Solicita a redefinição de senha."
+					},
+					"response": []
+				},
+				{
+					"name": "Reset Password",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"token\": \"token-from-email\",\n    \"newPassword\": \"finalpassword123\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/users/reset-password",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"users",
+								"reset-password"
+							]
+						},
+						"description": "Redefine a senha utilizando um token."
+					},
+					"response": []
+				},
+				{
+					"name": "Delete User",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/users/{{user_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"users",
+								"{{user_id}}"
+							]
+						},
+						"description": "Remove um usuário do sistema."
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{token}}",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"pm.test(\"Status code is 2xx\", function () {",
+					"    pm.expect(pm.response.code).to.be.oneOf([200, 201, 204]);",
+					"});",
+					"",
+					"pm.test(\"Response time is less than 500ms\", function () {",
+					"    pm.expect(pm.response.responseTime).to.be.below(500);",
+					"});"
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:3001/api",
+			"type": "string"
+		},
+		{
+			"key": "token",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "org_id",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "user_id",
+			"value": "",
+			"type": "string"
+		}
+	]
+}

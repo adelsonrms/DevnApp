@@ -1,20 +1,34 @@
 import { Request, Response } from 'express';
 import { userService } from './user.service';
+import { UserEntity } from '../auth/auth.repository.interface';
 
 export class UserController {
   async getAll(req: Request, res: Response) {
     try {
       const orgId = req.query.orgId as string;
+      const page = req.query.page ? parseInt(req.query.page as string) : undefined;
+      const limit = req.query.limit ? parseInt(req.query.limit as string) : undefined;
+      const offset = page && limit ? (page - 1) * limit : undefined;
+      const orderBy = req.query.orderBy as string;
+      const order = req.query.order as 'ASC' | 'DESC';
+
       let result;
+
+      const options = {
+        limit,
+        offset,
+        orderBy,
+        order
+      };
 
       if (orgId) {
         result = await userService.findByOrganization(orgId);
       } else {
-        result = await userService.getAllUsers();
+        result = await userService.getAllUsers(options);
       }
 
-      const safeUsers = result.map(user => {
-        const { password: _, ...safeUser } = user as any;
+      const safeUsers = result.map((user: UserEntity) => {
+        const { password: _, ...safeUser } = user;
         return safeUser;
       });
 
@@ -30,7 +44,7 @@ export class UserController {
       if (!result) {
         return res.status(404).json({ success: false, error: 'Usuário não encontrado' });
       }
-      const { password: _, ...safeUser } = result as any;
+      const { password: _, ...safeUser } = result;
       return res.status(200).json({ success: true, data: safeUser });
     } catch (error: any) {
       return res.status(500).json({ success: false, error: error.message });
@@ -57,7 +71,7 @@ export class UserController {
       }
 
       const result = await userService.create(req.body);
-      const { password: _, ...safeUser } = result as any;
+      const { password: _, ...safeUser } = result;
       return res.status(201).json({ success: true, data: safeUser });
     } catch (error: any) {
       return res.status(400).json({ success: false, error: error.message });
@@ -67,7 +81,7 @@ export class UserController {
   async update(req: Request, res: Response) {
     try {
       const result = await userService.update(req.params.id, req.body);
-      const { password: _, ...safeUser } = result as any;
+      const { password: _, ...safeUser } = result;
       return res.status(200).json({ success: true, data: safeUser });
     } catch (error: any) {
       return res.status(400).json({ success: false, error: error.message });

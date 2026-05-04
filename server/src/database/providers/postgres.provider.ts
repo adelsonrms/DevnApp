@@ -1,4 +1,4 @@
-import { IRepository } from '../repository.interface';
+import { IRepository, FindManyOptions } from '../repository.interface';
 
 /**
  * PostgreSQL Implementation of IRepository (Mocked for Template)
@@ -86,13 +86,30 @@ export class PostgresProvider<T> implements IRepository<T> {
     return (items.find(i => (i as any).id === id) as T) || null;
   }
 
-  async findMany(filters?: any): Promise<T[]> {
+  async findMany(options?: FindManyOptions): Promise<T[]> {
     let items = PostgresProvider.store.get(this.entity) || [];
+    const { filters, limit, offset, orderBy, order } = options || {};
     
     if (filters) {
       items = items.filter(item => {
         return Object.entries(filters).every(([key, value]) => (item as any)[key] === value);
       });
+    }
+
+    if (orderBy) {
+      items.sort((a, b) => {
+        const valA = (a as any)[orderBy];
+        const valB = (b as any)[orderBy];
+        if (valA < valB) return order === 'DESC' ? 1 : -1;
+        if (valA > valB) return order === 'DESC' ? -1 : 1;
+        return 0;
+      });
+    }
+
+    if (offset !== undefined || limit !== undefined) {
+      const start = offset || 0;
+      const end = limit !== undefined ? start + limit : items.length;
+      items = items.slice(start, end);
     }
     
     return items as T[];

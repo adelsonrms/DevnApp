@@ -1,10 +1,24 @@
 import { Request, Response } from 'express';
 import { organizationService } from './organization.service';
+import { UserEntity } from '../auth/auth.repository.interface';
 
 export class OrganizationController {
   async getAll(req: Request, res: Response) {
     try {
-      const result = await organizationService.getAll();
+      const page = req.query.page ? parseInt(req.query.page as string) : undefined;
+      const limit = req.query.limit ? parseInt(req.query.limit as string) : undefined;
+      const offset = page && limit ? (page - 1) * limit : undefined;
+      const orderBy = req.query.orderBy as string;
+      const order = req.query.order as 'ASC' | 'DESC';
+
+      const options = {
+        limit,
+        offset,
+        orderBy,
+        order
+      };
+
+      const result = await organizationService.getAll(options);
       return res.status(200).json({ success: true, data: result });
     } catch (error: any) {
       return res.status(500).json({ success: false, error: error.message });
@@ -89,8 +103,9 @@ export class OrganizationController {
       }
 
       const members = await organizationService.getMembers(req.params.id);
-      const safeMembers = members.map(user => {
-        const { password: _, ...safeUser } = user as any;
+      // Remove password field from each member
+      const safeMembers = members.map((user: UserEntity) => {
+        const { password: _, ...safeUser } = user;
         return safeUser;
       });
 
@@ -114,7 +129,7 @@ export class OrganizationController {
       }
 
       const result = await organizationService.addMember(req.params.id, email);
-      const { password: _, ...safeUser } = result as any;
+      const { password: _, ...safeUser } = result;
       return res.status(200).json({ success: true, data: safeUser });
     } catch (error: any) {
       if (error.message.includes('não localizado') ||
@@ -134,7 +149,7 @@ export class OrganizationController {
       }
 
       const result = await organizationService.removeMember(req.params.id, req.params.userId);
-      const { password: _, ...safeUser } = result as any;
+      const { password: _, ...safeUser } = result;
       return res.status(200).json({ success: true, data: safeUser });
     } catch (error: any) {
       if (error.message.includes('não pertence')) {

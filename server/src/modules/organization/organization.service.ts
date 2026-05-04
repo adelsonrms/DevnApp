@@ -1,7 +1,8 @@
 import { RepositoryFactory } from '../../database/repository.factory';
-import { IRepository } from '../../database/repository.interface';
+import { IRepository, FindManyOptions } from '../../database/repository.interface';
 import { Organization, User } from '@devnfw/shared';
 import { userService } from '../user/user.service';
+import { UserEntity } from '../auth/auth.repository.interface';
 
 export class OrganizationService {
   private repository: IRepository<Organization>;
@@ -18,8 +19,8 @@ export class OrganizationService {
     });
   }
 
-  async getAll(): Promise<Organization[]> {
-    return this.repository.findMany();
+  async getAll(options?: FindManyOptions): Promise<Organization[]> {
+    return this.repository.findMany(options);
   }
 
   async getById(id: string): Promise<Organization | null> {
@@ -27,7 +28,7 @@ export class OrganizationService {
   }
 
   async getBySlug(slug: string): Promise<Organization | null> {
-    const orgs = await this.repository.findMany({ slug });
+    const orgs = await this.repository.findMany({ filters: { slug } });
     return orgs.length > 0 ? orgs[0] : null;
   }
 
@@ -46,11 +47,11 @@ export class OrganizationService {
     return this.repository.delete(id);
   }
 
-  async getMembers(orgId: string): Promise<User[]> {
+  async getMembers(orgId: string): Promise<UserEntity[]> {
     return userService.findByOrganization(orgId);
   }
 
-  async addMember(orgId: string, email: string): Promise<User> {
+  async addMember(orgId: string, email: string): Promise<UserEntity> {
     const org = await this.getById(orgId);
     if (!org) {
       throw new Error('Organização não encontrada');
@@ -72,7 +73,7 @@ export class OrganizationService {
     return userService.update(user.id, { organization_id: orgId });
   }
 
-  async removeMember(orgId: string, userId: string): Promise<User> {
+  async removeMember(orgId: string, userId: string): Promise<UserEntity> {
     const user = await userService.findById(userId);
     if (!user || user.organization_id !== orgId) {
       throw new Error('Usuário não pertence a esta organização');

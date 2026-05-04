@@ -2,6 +2,7 @@ import bcrypt from 'bcrypt';
 import jwt, { SignOptions } from 'jsonwebtoken';
 import { RepositoryFactory } from '../../database/repository.factory';
 import { User, ApiResponse } from '@devnfw/shared';
+import { IUserRepository, UserEntity } from './auth.repository.interface';
 
 interface CreateUserData {
   email: string;
@@ -11,19 +12,16 @@ interface CreateUserData {
   organization_id?: string;
 }
 
-interface UserEntity extends User {
-  password?: string;
-}
 
 export class AuthService {
-  private userRepository = RepositoryFactory.get<any>('users');
+  private userRepository: IUserRepository = RepositoryFactory.getUserRepository();
   private jwtSecret = process.env.JWT_SECRET || 'template-secret-devnfw';
   private jwtExpiresIn = process.env.JWT_EXPIRES_IN || '24h';
 
   async register(data: CreateUserData): Promise<ApiResponse<{ user: User; token: string }>> {
     try {
-      const existing = await this.userRepository.findMany({ email: data.email });
-      if (existing.length > 0) {
+      const existing = await this.userRepository.findByEmail(data.email);
+      if (existing) {
         return { success: false, error: 'Usuário já cadastrado' };
       }
 
@@ -33,9 +31,9 @@ export class AuthService {
         email: data.email,
         name: data.name,
         password: hashedPassword,
-        role: data.role || 'user',
+        role: data.role as 'admin' | 'user' | 'owner' || 'user',
         organization_id: data.organization_id
-      });
+      }) as UserEntity;
 
       const token = this.generateToken(user);
 
@@ -52,8 +50,7 @@ export class AuthService {
 
   async login(email: string, password: string): Promise<ApiResponse<{ user: User; token: string }>> {
     try {
-      const users = await this.userRepository.findMany({ email });
-      const user = users.length > 0 ? users[0] : null;
+      const user = await this.userRepository.findByEmail(email) as UserEntity;
 
       if (!user) {
         return { success: false, error: 'Credenciais inválidas' };
@@ -81,7 +78,7 @@ export class AuthService {
     }
   }
 
-  private generateToken(user: UserEntity): string {
+  private generateToken(user: User | UserEntity): string {
     const options: SignOptions = {
       expiresIn: this.jwtExpiresIn as any
     };

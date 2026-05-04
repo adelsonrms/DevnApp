@@ -1,6 +1,8 @@
 import { RepositoryFactory } from '../../database/repository.factory';
 import { User } from '@devnfw/shared';
 import bcrypt from 'bcrypt';
+import { IUserRepository, UserEntity } from '../auth/auth.repository.interface';
+import { FindManyOptions } from '../../database/repository.interface';
 
 interface PasswordChangeData {
   currentPassword: string;
@@ -13,32 +15,29 @@ interface PasswordResetData {
 }
 
 export class UserService {
-  private repository: any;
-  private passwordRepository: any;
+  private repository: IUserRepository;
 
   constructor() {
-    this.repository = RepositoryFactory.get<any>('users');
-    this.passwordRepository = RepositoryFactory.get<any>('password_reset_tokens');
+    this.repository = RepositoryFactory.getUserRepository();
   }
 
-  async create(data: any): Promise<User> {
+  async create(data: any): Promise<UserEntity> {
     return this.repository.create(data);
   }
 
-  async findByEmail(email: string): Promise<User | null> {
-    const users = await this.repository.findMany({ email });
-    return users.length > 0 ? users[0] : null;
+  async findByEmail(email: string): Promise<UserEntity | null> {
+    return this.repository.findByEmail(email);
   }
 
-  async findById(id: string): Promise<User | null> {
+  async findById(id: string): Promise<UserEntity | null> {
     return this.repository.findById(id);
   }
 
-  async findByOrganization(orgId: string): Promise<User[]> {
-    return this.repository.findMany({ organization_id: orgId });
+  async findByOrganization(orgId: string): Promise<UserEntity[]> {
+    return this.repository.findMany({ filters: { organization_id: orgId } });
   }
 
-  async update(id: string, data: any): Promise<User> {
+  async update(id: string, data: any): Promise<UserEntity> {
     return this.repository.update(id, data);
   }
 
@@ -52,11 +51,11 @@ export class UserService {
       return { success: false, error: 'Usuário não encontrado' };
     }
 
-    if (!(user as any).password) {
+    if (!user.password) {
       return { success: false, error: 'Usuário não possui senha configurada' };
     }
 
-    const isMatch = await bcrypt.compare(data.currentPassword, (user as any).password);
+    const isMatch = await bcrypt.compare(data.currentPassword, user.password);
     if (!isMatch) {
       return { success: false, error: 'Senha atual incorreta' };
     }
@@ -74,13 +73,13 @@ export class UserService {
     }
 
     const resetToken = require('crypto').randomBytes(32).toString('hex');
-    await this.passwordRepository.createPasswordResetToken(user.id, resetToken, 60);
+    await this.repository.createPasswordResetToken(user.id, resetToken, 60);
 
     return { success: true, token: resetToken };
   }
 
   async resetPassword(data: PasswordResetData): Promise<{ success: boolean; error?: string }> {
-    const resetToken = await this.passwordRepository.findPasswordResetToken(data.token);
+    const resetToken = await this.repository.findPasswordResetToken(data.token);
     if (!resetToken) {
       return { success: false, error: 'Token inválido ou expirado' };
     }
@@ -93,13 +92,13 @@ export class UserService {
     const hashedPassword = await bcrypt.hash(data.newPassword, 10);
     await this.repository.update(user.id, { password: hashedPassword });
 
-    await this.passwordRepository.deletePasswordResetToken(data.token);
+    await this.repository.deletePasswordResetToken(data.token);
 
     return { success: true };
   }
 
-  async getAllUsers(): Promise<User[]> {
-    return this.repository.findMany();
+  async getAllUsers(options?: FindManyOptions): Promise<UserEntity[]> {
+    return this.repository.findMany(options);
   }
 }
 

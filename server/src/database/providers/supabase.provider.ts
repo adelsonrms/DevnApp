@@ -1,4 +1,4 @@
-import { IRepository } from '../repository.interface';
+import { IRepository, FindManyOptions } from '../repository.interface';
 import { SupabaseService } from '../../services/supabase.service';
 
 /**
@@ -53,13 +53,26 @@ export class SupabaseProvider<T> implements IRepository<T> {
     return data as T | null;
   }
 
-  async findMany(filters?: any): Promise<T[]> {
+  async findMany(options?: FindManyOptions): Promise<T[]> {
     let query = this.supabase.from(this.entity).select('*');
+    const { filters, limit, offset, orderBy, order } = options || {};
     
     if (filters) {
       Object.keys(filters).forEach(key => {
         query = query.eq(key, filters[key]);
       });
+    }
+
+    if (orderBy) {
+      query = query.order(orderBy, { ascending: order !== 'DESC' });
+    }
+
+    if (limit !== undefined) {
+      const from = offset || 0;
+      const to = from + limit - 1;
+      query = query.range(from, to);
+    } else if (offset !== undefined) {
+      query = query.range(offset, 1000000); // Large number if limit not specified
     }
 
     const { data, error } = await query;

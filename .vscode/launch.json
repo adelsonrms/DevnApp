@@ -1,78 +1,76 @@
 {
-  // Configurações de debug para o backend Express/TypeScript
   "version": "0.2.0",
+  "compounds": [
+    {
+      "name": "🧩 Full stack (API + Frontend)",
+      "configurations": [
+        "🚀 Debug API (Server)",
+        "🌐 Debug Frontend (Chrome)"
+      ]
+    }
+  ],
   "configurations": [
     {
-      "name": "🚀 Debug Server (ts-node)",
+      "name": "🚀 Debug API (Server)",
+      "type": "node",
+      "request": "launch",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": [
+        "run",
+        "dev"
+      ],
+      "cwd": "${workspaceFolder}/server",
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen",
+      "skipFiles": [
+        "<node_internals>/**"
+      ],
+      "env": {
+        "NODE_ENV": "development",
+        "PORT": "3001"
+      }
+    },
+    {
+      "name": "🚀 Debug API (Direct)",
       "type": "node",
       "request": "launch",
       "runtimeExecutable": "node",
       "runtimeArgs": [
-        "--inspect",
         "-r",
         "ts-node/register"
       ],
-      "args": ["${workspaceFolder}/apps/server/src/index.ts"],
-      "cwd": "${workspaceFolder}/apps/server",
+      "program": "${workspaceFolder}/server/src/index.ts",
+      "cwd": "${workspaceFolder}/server",
       "console": "integratedTerminal",
-      "internalConsoleOptions": "neverOpen",
-      "skipFiles": ["<node_internals>/**"],
-      "sourceMaps": true,
+      "skipFiles": [
+        "<node_internals>/**"
+      ],
       "env": {
-        "NODE_ENV": "development"
-      },
-      "resolveSourceMapLocations": [
-        "${workspaceFolder}/**",
-        "!**/node_modules/**"
-      ]
+        "NODE_ENV": "development",
+        "PORT": "3001"
+      }
     },
     {
-      "name": "🔗 Attach to Server (port 9229)",
+      "name": "🌐 Debug Frontend (Chrome)",
+      "type": "chrome",
+      "request": "launch",
+      "url": "http://localhost:5173",
+      "webRoot": "${workspaceFolder}/client",
+      "sourceMaps": true,
+      "timeout": 30000
+    },
+    {
+      "name": "� Attach to Server (port 9229)",
       "type": "node",
       "request": "attach",
       "port": 9229,
       "restart": true,
-      "localRoot": "${workspaceFolder}/apps/server",
-      "remoteRoot": "${workspaceFolder}/apps/server",
+      "localRoot": "${workspaceFolder}/server",
+      "remoteRoot": "${workspaceFolder}/server",
       "sourceMaps": true,
-      "skipFiles": ["<node_internals>/**"],
-      "outFiles": ["${workspaceFolder}/apps/server/dist/**/*.js"]
-    },
-    {
-      "name": "📦 Debug Server (compiled)",
-      "type": "node",
-      "request": "launch",
-      "runtimeExecutable": "node",
-      "runtimeArgs": [
-        "--inspect",
-        "--enable-source-maps"
-      ],
-      "program": "${workspaceFolder}/apps/server/dist/index.js",
-      "cwd": "${workspaceFolder}/apps/server",
-      "preLaunchTask": "npm: build",
-      "console": "integratedTerminal",
-      "internalConsoleOptions": "neverOpen",
-      "sourceMaps": true,
-      "skipFiles": ["<node_internals>/**"],
-      "outFiles": ["${workspaceFolder}/apps/server/dist/**/*.js"],
-      "env": {
-        "NODE_ENV": "development"
-      }
-    },
-    {
-      "name": "🔄 Debug Server (nodemon)",
-      "type": "node",
-      "request": "launch",
-      "runtimeExecutable": "npm",
-      "runtimeArgs": ["run", "dev:debug"],
-      "cwd": "${workspaceFolder}/apps/server",
-      "console": "integratedTerminal",
-      "internalConsoleOptions": "neverOpen",
-      "skipFiles": ["<node_internals>/**"],
-      "sourceMaps": true,
-      "env": {
-        "NODE_ENV": "development"
-      }
+      "skipFiles": [
+        "<node_internals>/**"
+      ]
     }
   ]
 }
