@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { User, ApiResponse } from '@devnfw/shared';
-import api from '../services/api';
+import { api } from '../services/api';
+import { SessionManager } from '../services/sessionManager';
 
 interface AuthContextType {
     user: User | null;
@@ -20,74 +21,69 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
  * Manages the global authentication state, tokens, and 
  * user profile information.
  */
-const MOCK_USER: User = {
-    id: 'demo-user-123',
-    name: 'Demonstração',
-    email: 'demo@devnfw.io',
-    role: 'owner',
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString()
-};
-
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-    // Initialized with mock data for demonstration
-    const [user, setUser] = useState<User | null>(MOCK_USER);
-    const [token, setToken] = useState<string | null>('demo-token-123');
+    const [user, setUser] = useState<User | null>(() => SessionManager.getUser() as any);
+    const [token, setToken] = useState<string | null>(() => SessionManager.getToken());
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        async function loadUser() {
-            // DEMO MODE: bypassing token validation via API
-            if (token && token !== 'demo-token-123') {
-                try {
-                    const response = await api.get('/auth/me');
-                    if (response.data.success) {
-                        setUser(response.data.data);
-                    }
-                } catch (error) {
-                    console.error('[Auth] Failed to load user', error);
-                    logout();
-                }
+        // Escutar mudanças de sessão (outras abas ou logout)
+        const unsubscribe = SessionManager.onSessionChange((session) => {
+            if (session) {
+                setToken(session.access_token);
+                setUser(session.user as any);
+            } else {
+                setToken(null);
+                setUser(null);
             }
-            setLoading(false);
+        });
+
+        // Verificar sessão inicial
+        const session = SessionManager.getSharedSession();
+        if (session) {
+            setToken(session.access_token);
+            setUser(session.user as any);
         }
-        loadUser();
-    }, [token]);
+        
+        setLoading(false);
+
+        return () => unsubscribe();
+    }, []);
 
     const login = async (email: string, password: string) => {
         try {
             const response = await api.post('/auth/login', { email, password });
-            if (response.data.success) {
-                const { user, token } = response.data.data;
+            if (response.success && response.data) {
+                const { user, token, refresh_token } = response.data;
+                SessionManager.saveSession(user, token, refresh_token);
                 setToken(token);
                 setUser(user);
-                localStorage.setItem('devnapp:token', token);
             }
-            return response.data;
+            return response;
         } catch (error: any) {
-            return error.response?.data || { success: false, error: 'Erro na conexão' };
+            return { success: false, error: error.message || 'Erro na conexão' };
         }
     };
 
     const register = async (data: any) => {
         try {
             const response = await api.post('/auth/register', data);
-            if (response.data.success) {
-                 const { user, token } = response.data.data;
+            if (response.success && response.data) {
+                 const { user, token, refresh_token } = response.data;
+                 SessionManager.saveSession(user, token, refresh_token);
                  setToken(token);
                  setUser(user);
-                 localStorage.setItem('devnapp:token', token);
             }
-            return response.data;
+            return response;
         } catch (error: any) {
-            return error.response?.data || { success: false, error: 'Erro na conexão' };
+            return { success: false, error: error.message || 'Erro na conexão' };
         }
     };
 
     const logout = () => {
+        SessionManager.clearSession();
         setToken(null);
         setUser(null);
-        localStorage.removeItem('devnapp:token');
     };
 
     return (

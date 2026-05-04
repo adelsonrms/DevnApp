@@ -45,9 +45,9 @@ const OrgFormModal: React.FC<OrgFormModalProps> = ({ isOpen, onClose, org, onSuc
 
     try {
       if (org) {
-        await api.put(`/api/organizations/${org.id}`, formData);
+        await api.put(`/organizations/${org.id}`, formData);
       } else {
-        await api.post('/api/organizations', formData);
+        await api.post('/organizations', formData);
       }
       onSuccess();
       onClose();
@@ -88,14 +88,14 @@ const OrgFormModal: React.FC<OrgFormModalProps> = ({ isOpen, onClose, org, onSuc
                   <h3 className="text-xl font-bold text-white uppercase tracking-tighter">
                     {org ? 'Editar' : 'Nova'} <span className="text-primary">Unidade</span>
                   </h3>
-                  <p className="text-[10px] font-black uppercase tracking-[0.2em] text-foreground/40">Configuração de Negócio</p>
+                  <p className="text-[10px] font-black uppercase tracking-[0.2em] text-foreground/100">Configuração de Negócio</p>
                 </div>
               </div>
               <button 
                 onClick={onClose}
                 title="Fechar"
                 aria-label="Fechar"
-                className="w-10 h-10 rounded-xl glass flex items-center justify-center text-foreground/40 hover:text-white transition-all"
+                className="w-10 h-10 rounded-xl glass flex items-center justify-center text-foreground/100 hover:text-white transition-all"
               >
                 <X size={20} />
               </button>

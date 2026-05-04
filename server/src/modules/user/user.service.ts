@@ -1,5 +1,5 @@
 import { RepositoryFactory } from '../../database/repository.factory';
-import { User } from '@devnfw/shared';
+import { User } from '../../../../shared/src/index';
 import bcrypt from 'bcrypt';
 import { IUserRepository, UserEntity } from '../auth/auth.repository.interface';
 import { FindManyOptions } from '../../database/repository.interface';

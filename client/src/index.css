@@ -59,6 +59,10 @@
     @apply font-sans antialiased bg-background text-foreground overflow-x-hidden selection:bg-primary selection:text-black transition-colors duration-200;
     min-height: 100vh;
   }
+
+  button, a {
+    @apply cursor-pointer;
+  }
 }
 
 @layer components {

@@ -2,15 +2,8 @@ import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import TechFrame from '../../components/ui/TechFrame';
-import NavbarBrand from '../../components/layout/parts/NavbarBrand';
-import Footer from '../../components/layout/parts/Footer';
+import Button from '../../components/ui/Button';
 
-/**
- * LoginPage Component
- * 
- * High-end visual identity for the authentication flow.
- * Standardized with the Tech-Industrial aesthetic.
- */
 const LoginPage: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -43,85 +36,117 @@ const LoginPage: React.FC = () => {
   };
 
   return (
-    <div id="login-layout" className="flex flex-col h-screen bg-background overflow-hidden font-sans transition-colors">
-      {/* Standardized Header (Simplified) */}
-      <header id="login-header" className="flex-none z-50 border-b border-border-strong bg-panel-bg h-14 flex items-center">
-        <NavbarBrand />
-      </header>
+    <div className="min-h-screen bg-background flex items-center justify-center p-6 font-sans relative overflow-hidden tech-grid">
+      {/* Decorative Background Elements */}
+      <div className="absolute top-0 left-0 w-full h-full pointer-events-none">
+        <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-primary/5 blur-[120px] rounded-full" />
+        <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-secondary/5 blur-[120px] rounded-full" />
+      </div>
 
-      <main className="flex-1 flex items-center justify-center p-6 relative overflow-hidden bg-background">
-        {/* Background Decorative Elements */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-primary/5 blur-[120px] -z-10 rounded-full" />
-        
-        <div className="w-full max-w-md animate-in fade-in zoom-in duration-500 z-10">
-          <TechFrame id="login-frame" className="w-full">
-            <div className="p-10 space-y-8">
-              <div className="space-y-1">
-                <h2 className="text-3xl font-black tracking-tighter text-white uppercase leading-none">
-                  LOGIN_<span className="text-secondary">SECURE</span>
-                </h2>
-                <p className="text-white/30 text-[9px] font-black tracking-[0.4em] uppercase">DevnApp_System_Auth_Node</p>
+      <div className="w-full max-w-[400px] z-10 animate-in fade-in zoom-in duration-500">
+        <div className="mb-8 flex flex-col items-center">
+          <div className="w-12 h-12 bg-secondary/10 border-2 border-secondary flex items-center justify-center mb-4 rotate-45">
+            <div className="-rotate-45">
+              <div className="w-6 h-6 border-2 border-secondary/40 flex items-center justify-center">
+                <div className="w-2 h-2 bg-secondary animate-pulse" />
               </div>
+            </div>
+          </div>
+          <h1 className="text-2xl font-black tracking-tighter text-white uppercase leading-none">
+            DEVN<span className="text-secondary">APP</span>
+          </h1>
+          <div className="h-[2px] w-12 bg-border-strong mt-2" />
+        </div>
 
-              {error && (
-                <div className="p-4 bg-destructive/10 border-2 border-destructive/20 text-destructive text-[10px] font-black uppercase tracking-widest animate-in fade-in">
-                  CRITICAL_ERROR: {error}
+        <TechFrame id="login-frame">
+          <div className="p-8 space-y-6">
+            <div className="space-y-1">
+              <h2 className="text-lg font-black tracking-tight text-white uppercase leading-none">
+                AUTHENTICATE<span className="text-secondary">_SESSION</span>
+              </h2>
+              <p className="text-[9px] font-black tracking-[0.4em] text-white/20 uppercase">Protocol: Secure_Handshake_v2</p>
+            </div>
+
+            {error && (
+              <div className="p-3 bg-destructive/10 border-l-4 border-destructive text-destructive text-[10px] font-black uppercase tracking-wider animate-in slide-in-from-left-2">
+                CRITICAL_AUTH_FAILURE: {error}
+              </div>
+            )}
+
+            <form onSubmit={handleSubmit} className="space-y-5">
+              <div className="space-y-2 group">
+                <div className="flex justify-between items-end px-1">
+                  <label className="text-[9px] font-black tracking-[0.2em] uppercase text-white/40 group-focus-within:text-secondary transition-colors">USER_IDENTITY</label>
+                  <span className="text-[8px] font-mono text-white/10">[Required]</span>
                 </div>
-              )}
-
-              <form onSubmit={handleSubmit} className="space-y-6">
-                <div className="space-y-2">
-                  <label className="text-[9px] font-black tracking-[0.3em] uppercase text-white/40 ml-1">USER_IDENTITY</label>
+                <div className="relative">
                   <input
-                    type="email"
+                    type="text"
                     required
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    placeholder="EMAIL@DOMAIN.COM"
-                    className="w-full px-5 py-4 bg-background border-2 border-border-strong text-white placeholder:text-white/10 focus:outline-none focus:border-secondary transition-all text-xs font-bold uppercase tracking-widest"
+                    placeholder="email@domain.com"
+                    className="w-full px-4 py-3 bg-background/50 border border-border-strong text-white placeholder:text-white/10 focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary/20 transition-all text-xs font-bold tracking-wider"
                   />
+                  <div className="absolute bottom-0 left-0 h-[1px] w-0 bg-secondary transition-all duration-300 group-focus-within:w-full" />
                 </div>
+              </div>
 
-                <div className="space-y-2">
-                  <label className="text-[9px] font-black tracking-[0.3em] uppercase text-white/40 ml-1">ACCESS_KEY</label>
+              <div className="space-y-2 group">
+                <div className="flex justify-between items-end px-1">
+                  <label className="text-[9px] font-black tracking-[0.2em] uppercase text-white/40 group-focus-within:text-secondary transition-colors">ACCESS_KEY</label>
+                  <span className="text-[8px] font-mono text-white/10">[Encrypted]</span>
+                </div>
+                <div className="relative">
                   <input
                     type="password"
                     required
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="••••••••••••"
-                    className="w-full px-5 py-4 bg-background border-2 border-border-strong text-white placeholder:text-white/10 focus:outline-none focus:border-secondary transition-all text-xs font-bold"
+                    className="w-full px-4 py-3 bg-background/50 border border-border-strong text-white placeholder:text-white/10 focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary/20 transition-all text-xs font-bold"
                   />
+                  <div className="absolute bottom-0 left-0 h-[1px] w-0 bg-secondary transition-all duration-300 group-focus-within:w-full" />
                 </div>
-
-                <div className="pt-4">
-                  <button
-                    type="submit"
-                    disabled={isSubmitting}
-                    className="w-full py-5 bg-secondary text-black font-black uppercase tracking-widest text-[10px] border-2 border-black hover:brightness-110 active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    {isSubmitting ? "PROCESSING_HANDSHAKE..." : "ESTABLISH_SESSION"}
-                  </button>
-                </div>
-              </form>
-
-              <div className="pt-8 border-t-2 border-border-strong text-center">
-                <button 
-                  onClick={() => navigate('/')}
-                  className="text-white/20 hover:text-white text-[9px] font-black uppercase tracking-[0.4em] transition-all"
-                >
-                  &larr; RETURN_TO_ECOSYSTEM
-                </button>
               </div>
-            </div>
-          </TechFrame>
-        </div>
-      </main>
 
-      {/* Standardized Footer */}
-      <footer id="login-footer" className="flex-none z-50 border-t border-border-strong">
-        <Footer />
-      </footer>
+              <div className="pt-2">
+                <Button
+                  type="submit"
+                  variant="secondary"
+                  size="lg"
+                  loading={isSubmitting}
+                  className="w-full group overflow-hidden relative"
+                >
+                  <span className="relative z-10 flex items-center gap-2">
+                    {isSubmitting ? 'ESTABLISHING...' : 'ESTABLISH_SESSION'}
+                    {!isSubmitting && <div className="w-1.5 h-1.5 bg-black rounded-full animate-ping" />}
+                  </span>
+                  <div className="absolute inset-0 bg-white/20 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700 ease-in-out" />
+                </Button>
+              </div>
+            </form>
+
+            <div className="pt-6 border-t border-border-strong/50 flex justify-center">
+              <button
+                onClick={() => navigate('/')}
+                className="text-white/20 hover:text-secondary text-[9px] font-black uppercase tracking-[0.3em] transition-all flex items-center gap-2"
+              >
+                <span className="text-lg leading-none">«</span> RETURN_TO_ECOSYSTEM
+              </button>
+            </div>
+          </div>
+        </TechFrame>
+
+        <div className="mt-8 flex justify-between px-2">
+          <div className="flex gap-1">
+            {[1, 2, 3].map(i => (
+              <div key={i} className="w-1 h-1 bg-white/10" />
+            ))}
+          </div>
+          <p className="text-[8px] font-mono text-white/10 tracking-widest">SECURE_AUTH_LAYER_V2.0.4</p>
+        </div>
+      </div>
     </div>
   );
 };

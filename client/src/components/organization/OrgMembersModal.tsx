@@ -28,11 +28,11 @@ const OrgMembersModal: React.FC<OrgMembersModalProps> = ({ isOpen, onClose, org 
     setLoading(true);
     setError(null);
     try {
-      const response = await api.get<ApiResponse<User[]>>(`/api/organizations/${org.id}/members`);
-      if (response.data.success) {
-        setMembers(response.data.data || []);
+      const response = await api.get<ApiResponse<User[]>>(`/organizations/${org.id}/members`);
+      if (response.success) {
+        setMembers(response.data || []);
       } else {
-        setError(response.data.error || 'Erro ao carregar membros');
+        setError(response.error || 'Erro ao carregar membros');
       }
     } catch (err: any) {
       setError(err.message || 'Erro de conexão');
@@ -47,15 +47,15 @@ const OrgMembersModal: React.FC<OrgMembersModalProps> = ({ isOpen, onClose, org 
     setAddingLoading(true);
     setError(null);
     try {
-      const response = await api.post(`/api/organizations/${org.id}/members`, { email: newMemberEmail });
-      if (response.data.success) {
-        setMembers(prev => [...prev, response.data.data]);
+      const response = await api.post(`/organizations/${org.id}/members`, { email: newMemberEmail });
+      if (response.success) {
+        setMembers(prev => [...prev, response.data]);
         setNewMemberEmail('');
       } else {
-        setError(response.data.error || 'Erro ao adicionar membro');
+        setError(response.error || 'Erro ao adicionar membro');
       }
     } catch (err: any) {
-      setError(err.response?.data?.error || err.message || 'Erro ao adicionar membro');
+      setError(err.error || err.message || 'Erro ao adicionar membro');
     } finally {
       setAddingLoading(false);
     }
@@ -66,7 +66,7 @@ const OrgMembersModal: React.FC<OrgMembersModalProps> = ({ isOpen, onClose, org 
     if (!window.confirm('Deseja remover este usuário da unidade?')) return;
     
     try {
-      await api.delete(`/api/organizations/${org.id}/members/${userId}`);
+      await api.delete(`/organizations/${org.id}/members/${userId}`);
       setMembers(prev => prev.filter(m => m.id !== userId));
     } catch (err: any) {
       setError(err.message || 'Erro ao remover membro');
@@ -101,14 +101,14 @@ const OrgMembersModal: React.FC<OrgMembersModalProps> = ({ isOpen, onClose, org 
                   <h3 className="text-xl font-bold text-white uppercase tracking-tighter">
                     Membros: <span className="text-secondary">{org?.name}</span>
                   </h3>
-                  <p className="text-[10px] font-black uppercase tracking-[0.2em] text-foreground/40">Gestão de Colaboradores</p>
+                  <p className="text-[10px] font-black uppercase tracking-[0.2em] text-foreground/100">Gestão de Colaboradores</p>
                 </div>
               </div>
               <button 
                 onClick={onClose}
                 title="Fechar"
                 aria-label="Fechar"
-                className="w-10 h-10 rounded-xl glass flex items-center justify-center text-foreground/40 hover:text-white transition-all"
+                className="w-10 h-10 rounded-xl glass flex items-center justify-center text-foreground/100 hover:text-white transition-all"
               >
                 <X size={20} />
               </button>
@@ -183,11 +183,11 @@ const OrgMembersModal: React.FC<OrgMembersModalProps> = ({ isOpen, onClose, org 
                              {member.name}
                              {member.role === 'owner' && <UserCheck size={12} className="text-emerald-400" />}
                           </p>
-                          <p className="text-[9px] font-medium text-foreground/40">{member.email}</p>
+                          <p className="text-[9px] font-medium text-foreground/100">{member.email}</p>
                         </div>
                       </div>
                       <div className="flex items-center gap-3">
-                         <span className="px-3 py-1 bg-white/5 rounded-lg text-[8px] font-black text-foreground/40 uppercase border border-white/5">
+                         <span className="px-3 py-1 bg-white/5 rounded-lg text-[8px] font-black text-foreground/100 uppercase border border-white/5">
                             {member.role}
                          </span>
                          <button 

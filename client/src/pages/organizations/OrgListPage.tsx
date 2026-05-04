@@ -46,7 +46,7 @@ const OrgListPage: React.FC = () => {
       <header className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-border-strong pb-6">
         <div className="space-y-1">
           <h2 className="text-3xl font-black tracking-tighter text-foreground uppercase">ORGS_<span className="text-primary">MANAGEMENT</span></h2>
-          <p className="text-[10px] font-bold tracking-widest uppercase text-foreground/40">
+          <p className="text-[10px] font-bold tracking-widest uppercase text-foreground/100">
              BUSINESS_UNITS &middot; CENTRAL_HUB
           </p>
         </div>
@@ -113,13 +113,13 @@ const OrgListPage: React.FC = () => {
                     <button 
                       onClick={() => handleManageMembers(org)}
                       title="MEMBERS"
-                      className="p-3 bg-background border-2 border-border-strong text-foreground/40 hover:text-secondary hover:border-secondary transition-all active:translate-y-0.5">
+                      className="p-3 bg-background border-2 border-border-strong text-foreground/100 hover:text-secondary hover:border-secondary transition-all active:translate-y-0.5">
                       <Users size={14} />
                     </button>
                     <button 
                       onClick={() => handleEdit(org)}
                       title="SETTINGS"
-                      className="p-3 bg-background border-2 border-border-strong text-foreground/40 hover:text-foreground hover:border-foreground transition-all active:translate-y-0.5">
+                      className="p-3 bg-background border-2 border-border-strong text-foreground/100 hover:text-foreground hover:border-foreground transition-all active:translate-y-0.5">
                       <Settings2 size={14} />
                     </button>
                   </div>
@@ -137,7 +137,7 @@ const OrgListPage: React.FC = () => {
             </div>
             <div>
                <h4 className="text-sm font-black text-foreground uppercase tracking-widest">WORKSPACE_ORGANIZATIONS</h4>
-               <p className="text-[10px] font-bold text-foreground/40 uppercase tracking-tight">
+               <p className="text-[10px] font-bold text-foreground/100 uppercase tracking-tight">
                   Viewing business units linked to your DEVNAPP license.
                </p>
             </div>
